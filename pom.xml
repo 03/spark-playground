@@ -22,6 +22,8 @@
         <scala.version>2.11.11</scala.version>
         <scala.compat.version>2.11</scala.compat.version>
         <spark.version>2.2.0</spark.version>
+
+        <fasterxml.version>2.9.0</fasterxml.version>
     </properties>
 
     <dependencies>
@@ -70,6 +72,23 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.16.6</version>
+        </dependency>
+
+        <!-- fasterxml -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${fasterxml.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${fasterxml.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-csv</artifactId>
+            <version>${fasterxml.version}</version>
         </dependency>
 
         <!-- Test -->
