@@ -1,6 +1,6 @@
 package com.sensis.bigdata.puzzle
 
-class DoorScala (val id: Int) {
+class DoorScala (id: Int) {
 
   var isClosed: Boolean = true
   def visit = {isClosed = !isClosed}
