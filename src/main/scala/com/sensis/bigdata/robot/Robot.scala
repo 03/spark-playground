@@ -40,7 +40,7 @@ class Robot (max_x : Int, max_y : Int) {
   }
 
   def report = println(current_position)
-  private def current_position = s"$x, $y, $direction"
+  private def current_position = s"($x, $y), $direction"
 
   def move = {
 
