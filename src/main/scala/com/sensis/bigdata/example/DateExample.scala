@@ -1,5 +1,7 @@
 package com.sensis.bigdata.example
 
+import org.joda.time.format.DateTimeFormat
+
 /**
   * Created by orp on 30/06/17.
   */
@@ -13,6 +15,11 @@ object DateExample {
     cal.add(java.util.Calendar.DATE, -1)
     val yesterday: String = new java.text.SimpleDateFormat("yyyyMMdd").format(cal.getTime)
     println("Date - " + yesterday)
+
+    val refDate = 20171012
+    val formatter = DateTimeFormat.forPattern("yyyyMMdd")
+    val dt = formatter.parseLocalDate(String.valueOf(refDate)).minusDays(1)
+    System.out.println("DT: " + formatter.print(dt))
   }
 
 }
