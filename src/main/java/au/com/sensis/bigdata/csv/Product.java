@@ -1,4 +1,4 @@
-package au.com.sensis.bigdata.csv.model;
+package au.com.sensis.bigdata.csv;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 

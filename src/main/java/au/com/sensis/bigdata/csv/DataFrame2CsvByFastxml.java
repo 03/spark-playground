@@ -1,6 +1,5 @@
 package au.com.sensis.bigdata.csv;
 
-import au.com.sensis.bigdata.csv.model.Product;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
