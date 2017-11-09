@@ -16,7 +16,7 @@ syntax: glob
 
 # idea
 .idea
-*.iml
+#*.iml
 
 # building
 target
