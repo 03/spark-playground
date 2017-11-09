@@ -1,10 +1,13 @@
 package au.com.sensis.bigdata.csv.model;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.io.Serializable;
 
 /**
  * Created by orp on 18/07/17.
  */
+@JsonPropertyOrder({"id", "name", "created", "quantity"})
 public class Product implements Serializable {
 
     private String id;

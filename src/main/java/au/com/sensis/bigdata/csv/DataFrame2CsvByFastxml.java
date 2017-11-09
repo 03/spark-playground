@@ -1,6 +1,6 @@
 package au.com.sensis.bigdata.csv;
 
-import au.com.sensis.bigdata.csv.model.Product2;
+import au.com.sensis.bigdata.csv.model.Product;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -12,6 +12,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +40,7 @@ public class DataFrame2CsvByFastxml {
         CsvMapper mapper = new CsvMapper();
         mapper.setPropertyNamingStrategy(createReplaceNamingStrategy(displayMap));
 
-        CsvSchema schema = mapper.schemaFor(Product2.class)
+        CsvSchema schema = mapper.schemaFor(Product.class)
                 .withColumnSeparator(',')
                 .withHeader();
         return mapper.writer(schema);
@@ -47,29 +48,36 @@ public class DataFrame2CsvByFastxml {
 
     public static  ObjectWriter createWriter() {
         CsvMapper mapper = new CsvMapper();
-        CsvSchema schema = mapper.schemaFor(Product2.class)
+        CsvSchema schema = mapper.schemaFor(Product.class)
                 .withColumnSeparator(',')
                 .withHeader();
         return mapper.writer(schema);
     }
 
-    public static void saveToLocal(ObjectWriter writer,
+    public static void saveToLocal(ObjectWriter writer, String filePath,
                      List rows) throws IOException {
-
-        File output = new File("/var/tmp/csv-xml.csv");
-        FileUtils.write(output, writer.writeValueAsString(rows));
+        FileUtils.write(new File(filePath), writer.writeValueAsString(rows));
     }
 
     public static void main(String[] args) throws IOException {
 
-        List<Product2> arrayList2 = new ArrayList();
+        List<Product> productList = new ArrayList();
 
-        arrayList2.add(new Product2("1", "HTC", "2017", 123));
-        arrayList2.add(new Product2("2", "Sony", "2017", 345));
-        arrayList2.add(new Product2("3", "Samsung", "2017", 1233));
+        productList.add(new Product("1", "HTC", "2017", 123));
+        productList.add(new Product("2", "Sony", "2017", 345));
+        productList.add(new Product("3", "Samsung", "2017", 1233));
 
         ObjectWriter writer = createWriter();
-        saveToLocal(writer, arrayList2);
+        saveToLocal(writer, "/var/tmp/csv-xml.csv", productList);
+
+        // use user-defined heading map
+        // Map<String, String> mapping = Map.of("id", "MyID", "name", "Name", "created", "Created", "quantity", "Count");
+        Map<String, String> mapping = new HashMap<>();
+        mapping.put("id", "MyID");
+        mapping.put("name", "Name");
+        mapping.put("created", "Created");
+        mapping.put("quantity", "Count");
+        saveToLocal(createWriter(mapping), "/var/tmp/csv-xml-heading.csv", productList);
 
     }
 }

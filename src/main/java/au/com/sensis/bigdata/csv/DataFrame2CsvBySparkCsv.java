@@ -12,8 +12,6 @@ import java.util.List;
  */
 public class DataFrame2CsvBySparkCsv {
 
-
-
     public static void main(String[] args) {
 
         SparkSession sparkSession = SparkSession.builder().appName("Build a DataFrame from Scratch").master("local[*]")
