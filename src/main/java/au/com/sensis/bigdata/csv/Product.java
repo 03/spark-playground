@@ -1,6 +1,7 @@
 package au.com.sensis.bigdata.csv;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
@@ -61,5 +62,15 @@ public class Product implements Serializable {
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("id", id)
+                .append("name", name)
+                .append("created", created)
+                .append("quantity", quantity)
+                .toString();
     }
 }
