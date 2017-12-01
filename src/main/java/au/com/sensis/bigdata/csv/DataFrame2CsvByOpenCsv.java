@@ -2,6 +2,7 @@ package au.com.sensis.bigdata.csv;
 
 import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 
 import java.io.IOException;
@@ -52,6 +53,13 @@ public class DataFrame2CsvByOpenCsv {
         list = bean.parse(strategy, new StringReader(csvContent));
         System.out.println("HeaderColumnNameMappingStrategy 2> \n" + list);
 
+        StringReader reader = new StringReader(csvContent);
+        CsvToBean<Student> bean2 = new CsvToBeanBuilder(reader)
+                .withMappingStrategy(strategy)
+                .build();
+        List<Student> list2 = bean2.parse();
+        System.out.println("HeaderColumnNameMappingStrategy 3> \n" + list2);
+
     }
 
     public void useColumnPositionMapping() {
@@ -71,6 +79,15 @@ public class DataFrame2CsvByOpenCsv {
         //Parse the CSV
         List<Student> list = bean.parse(strategy, new StringReader(csvContent));
         System.out.println("ColumnPositionMappingStrategy 1> \n" + list);
+
+
+        StringReader reader = new StringReader(csvContent);
+        CsvToBean<Student> bean2 = new CsvToBeanBuilder(reader)
+                .withMappingStrategy(strategy)
+                .build();
+        List<Student> list2 = bean2.parse();
+        System.out.println("ColumnPositionMappingStrategy 2> \n" + list2);
+
     }
 
 }
