@@ -5,7 +5,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class Student {
 
-    @CsvBindByName(required = true, column = "STUDENT_ID")
+    @CsvBindByName(required = true, column = "STUDENT ID")
     private String id;
     @CsvBindByName
     private String name;

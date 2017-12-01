@@ -35,7 +35,7 @@ public class DataFrame2CsvByOpenCsv {
 
         //CSV header names matching with bean properties
         String csvContent =
-                "STUDENT_ID,name,age,hobby\n" +
+                "STUDENT ID,name,age,hobby\n" +
                         "1,Sriram,2,Chess\n" +
                         "2,Sudhakar,29,Painting";
 
@@ -44,7 +44,7 @@ public class DataFrame2CsvByOpenCsv {
         System.out.println("HeaderColumnNameMappingStrategy 1> \n" + list);
 
         csvContent =
-                "STUDENT_ID,name,age\n" +
+                "STUDENT ID,name,age\n" +
                         "1,Sriram,2\n" +
                         "2,Sudhakar,29";
 
