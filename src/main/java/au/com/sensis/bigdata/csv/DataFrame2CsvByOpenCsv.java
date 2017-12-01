@@ -11,36 +11,43 @@ import java.util.List;
  * Created by orp on 01/12/17.
  *
  * http://opencsv.sourceforge.net/apidocs/com/opencsv/bean/MappingStrategy.html
- * http://bethecoder.com/applications/tutorials/csv/open-csv/csv-to-bean-using-header-to-column-name-mapping-strategy.html
+ * http://bethecoder.com/applications/tutorials/csv/open-csv.html
  */
 public class DataFrame2CsvByOpenCsv {
 
     public static void main(String[] args) throws IOException {
 
-        CsvToBean<Product> bean = new CsvToBean<>();
+        useHeaderNameMapping();
+
+    }
+
+    public static void useHeaderNameMapping() {
+
+        CsvToBean<Student> bean = new CsvToBean<>();
         //Define strategy
-        HeaderColumnNameMappingStrategy<Product> strategy =
+        HeaderColumnNameMappingStrategy<Student> strategy =
                 new HeaderColumnNameMappingStrategy<>();
-        strategy.setType(Product.class);
+        strategy.setType(Student.class);
 
         //CSV header names matching with bean properties
         String csvContent =
-                "id,name,quantity,created\n" +
-                        "1,Sriram,21,2012\n" +
-                        "2,Sudhakar,29,2001";
+                "STUDENT_ID,name,age,hobby\n" +
+                        "1,Sriram,2,Chess\n" +
+                        "2,Sudhakar,29,Painting";
 
         //Parse the CSV
-        List<Product> products = bean.parse(strategy, new StringReader(csvContent));
-        System.out.println("1> \n" + products);
+        List<Student> list = bean.parse(strategy, new StringReader(csvContent));
+        System.out.println("1> \n" + list);
 
         csvContent =
-                "id,name,quantity\n" +
-                        "1,Sriram,21\n" +
+                "STUDENT_ID,name,age\n" +
+                        "1,Sriram,2\n" +
                         "2,Sudhakar,29";
 
         //Parse the CSV
-        products = bean.parse(strategy, new StringReader(csvContent));
-        System.out.println("2> \n" + products);
+        list = bean.parse(strategy, new StringReader(csvContent));
+        System.out.println("2> \n" + list);
 
     }
+
 }
