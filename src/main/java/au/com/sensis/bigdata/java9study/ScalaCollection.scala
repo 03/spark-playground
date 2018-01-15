@@ -3,6 +3,8 @@ package au.com.sensis.bigdata.java9study
 /**
   * http://allaboutscala.com/tutorials/chapter-8-beginner-tutorial-using-scala-collection-functions/scala-collect-function/
   * https://docs.scala-lang.org/overviews/collections/conversions-between-java-and-scala-collections.html
+  *
+  * https://app.pluralsight.com/score/learning-check/scala-for-java-developers/next
   */
 object ScalaCollection {
 
@@ -18,6 +20,13 @@ object ScalaCollection {
 
     val newList: Seq[String] = daysOfWeekList.collect({case dayOfWeek: String => dayOfWeek + "_new"})
     println(newList)
+
+    var rs = List(List(Option(1), Option(2)), List(Option(3), Option(4))).flatMap(a => a).map(b => b.get).sum;
+    println(rs)
+
+    rs = List(List(Option(1), Option(2)), List(Option(3), Option(4))).flatMap(a => a.flatMap(b => b).map(c => c * 2)).sum
+    println(rs)
+
   }
 
 }
