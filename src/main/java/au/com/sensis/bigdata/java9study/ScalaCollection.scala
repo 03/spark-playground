@@ -27,6 +27,9 @@ object ScalaCollection {
     rs = List(List(Option(1), Option(2)), List(Option(3), Option(4))).flatMap(a => a.flatMap(b => b).map(c => c * 2)).sum
     println(rs)
 
+    val nullSeries=List(Option("A"), Option(null), Option("B"), None).flatten
+    println(nullSeries)
+
   }
 
 }

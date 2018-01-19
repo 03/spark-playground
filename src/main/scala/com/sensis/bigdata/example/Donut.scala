@@ -1,5 +1,6 @@
 /**
   * http://allaboutscala.com/tutorials/chapter-3-beginner-tutorial-using-classes-scala/scala-tutorial-learn-use-implicit-class-extension-methods/
+  * http://blog.csdn.net/jameshadoop/article/details/52337949
   */
 
 package com.sensis.bigdata.example
