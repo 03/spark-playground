@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <title>Search Events in VIC (20180214)</title>
+
+    <!-- Web Framework CSS - Bootstrap (getbootstrap.com) and Bootstrap-map-js (github.com/esri/bootstrap-map-js) -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//esri.github.io/bootstrap-map-js/src/css/bootstrapmap.css">
+
+    <style>
+        html,
+        body,
+        #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+
+    <link rel="stylesheet" href="https://jsdev.arcgis.com/4.6/esri/css/main.css">
+    <link rel="stylesheet" href="https://jsdev.arcgis.com/4.6/dijit/themes/soria/soria.css">
+    <script src="https://jsdev.arcgis.com/4.6/"></script>
+
+    <script>
+        require([
+            "esri/Map",
+            "esri/views/MapView",
+            "esri/layers/FeatureLayer",
+            "esri/layers/MapImageLayer",
+            "esri/renderers/UniqueValueRenderer",
+            "esri/renderers/ClassBreaksRenderer",
+            "esri/symbols/SimpleMarkerSymbol",
+            "esri/symbols/SimpleFillSymbol",
+            "esri/widgets/Legend",
+            "esri/PopupTemplate",
+            "esri/tasks/QueryTask",
+            "esri/tasks/support/Query",
+            "esri/geometry/geometryEngine",
+            "esri/layers/GraphicsLayer",
+            "esri/Graphic",
+            "dojo/on",
+            "dojo/dom",
+            "dojo/dom-style",
+            "dojo/domReady!"
+        ], function(Map, MapView, FeatureLayer, MapImageLayer,
+                    UniqueValueRenderer, ClassBreaksRenderer,
+                    SimpleMarkerSymbol, SimpleFillSymbol, Legend,
+                    PopupTemplate, QueryTask, Query, geometryEngine, GraphicsLayer, Graphic,
+                    on, dom, domStyle) {
+
+            var map = new Map({
+                basemap: "streets"
+            });
+
+            // Construct feature layer from service URL
+            var featureLayer = new FeatureLayer({
+                url: "https://services8.arcgis.com/iVrk3P5ok3B9bZ1l/ArcGIS/rest/services/0214_searchsample/FeatureServer/0"
+
+            });
+
+            // Add feature layer to map
+            map.add(featureLayer);
+
+            // Discrete Data: Construct a UniqueValueRenderer
+            var uvRenderer = new UniqueValueRenderer({
+                field: "referredBy_evt"
+            });
+
+            // Discrete Data: Specify unique values and their symbols
+            uvRenderer.addUniqueValueInfo({
+                value: "www.yellowpages.com.au",
+                symbol: new SimpleMarkerSymbol({
+                    style: "square",
+                    color: [236,64,122,0.3]
+                })
+            });
+
+            uvRenderer.addUniqueValueInfo({
+                value: "www.google.com.au",
+                symbol: new SimpleMarkerSymbol({
+                    style: "circle",
+                    color: [140, 235, 80, 0.25]
+                })
+            });
+
+            uvRenderer.addUniqueValueInfo({
+                value: "UNKNOWN",
+                symbol: new SimpleMarkerSymbol({
+                    style: "diamond",
+                    color: [30, 99, 30, 0.25]
+                })
+            });
+
+            featureLayer.renderer = uvRenderer;
+
+            var view = new MapView({
+                container: "viewDiv",
+                map: map,
+                center: [-37.813628, 144.963058],
+                zoom: 1
+            });
+
+            // Wait until the layer is loaded...
+            featureLayer.then(function() {
+                // ... then set the initial extent
+                view.extent = featureLayer.fullExtent;
+            });
+
+            // Legend widget
+            var myLegend = new Legend({
+                view: view,
+                layerInfos: [{
+                    layer: featureLayer,
+                    title: "Referred By"
+                }]
+            });
+            view.ui.add(myLegend, "bottom-right");
+
+            // Popups
+            var eventPopupTemplate = new PopupTemplate({
+                title: "Event Summary",
+                content: "At: <b>{eventDateTS_evt}</b> <br>" +
+                "Keyword: <b>{keywordPhrase_evt}</b> <br>" +
+                "Ip: <b>{IpAddressPrimary_evt}</b> <br>" +
+                "Referred by: <b>{referredBy_evt}</b>",
+                fieldInfos: [{
+                    fieldName: "eventDateTS_evt",
+                    format: {
+                        dateFormat: "short-date",
+                        digitSeparator: false,
+                        places: 0
+                    }
+                }]
+            });
+            //
+            // Apply the popup template to the sublayer
+            featureLayer.popupTemplate = eventPopupTemplate;
+            //
+            // Tell the view how to position the popup
+            view.popup.set("dockOptions",{
+                breakpoint: false,
+                position: "auto"
+            });
+
+            // helper functions
+            function showLoadingSpinner() {
+                var spinnerNode = dom.byId(loadingImg);
+                domStyle.set(spinnerNode, "display", "block");
+            }
+
+            function hideLoadingSpinner() {
+                var spinnerNode = dom.byId(loadingImg);
+                domStyle.set(spinnerNode, "display", "none");
+            }
+
+            function displayMyPolygon(polygonGeometry, aColorString, anOpacity) {
+
+                var loc = polygonGeometry.toJSON();
+                alert("type:["+ polygonGeometry.type + "] \n x:" + loc.x + ", y:"+ loc.y);
+
+                var aGraphic = new Graphic({
+                    geometry: polygonGeometry,
+                    symbol: new SimpleFillSymbol(
+                        {
+                            //type: "simple-marker", // autocasts as new SimpleMarkerSymbol()
+                            color: aColorString,
+                            style: "diamond",
+                            size: 30,
+                        })
+                });
+                // if opacity was not specified, default to 1.0
+                if (anOpacity) {
+                } else {
+                    anOpacity = 1.0;
+                }
+                aGraphic.symbol.color.a = anOpacity;
+                resultsLayer.graphics.add(aGraphic);
+            }
+
+            // Create a graphics layer to display results
+            var resultsLayer = new GraphicsLayer({
+                    graphics: []
+                });
+            map.add(resultsLayer);
+            // map.addMany([featureLayer, resultsLayer]);
+
+            // Global variables for intermediate outputs
+            var gCriteria01Geometry;
+
+            // Analysis functions
+            function getOnlyOne(inputLayer) {
+
+                // Get all features from the input layer
+                // var query = inputLayer.createQuery();
+                var q = new Query ({
+                    // where: "keywordPhrase_evt = 'Shariee flagan'", // " + dom.byId("populationSelect").value + "
+                    where: "keywordPhrase_evt = '" + dom.byId("keywordPhase").value + " '",
+                    spatialRelationship: "intersects",
+                    returnGeometry: true
+                });
+                return inputLayer.queryFeatures(q).then(function (response) {
+                    return response.features.map(function (aFeature) {
+                        return aFeature.geometry;
+                    });
+
+                }).then(function (arrGeometries) {
+                    // Union geometries together into a single geometry object
+                    gCriteria01Geometry = geometryEngine.union(arrGeometries);
+
+                    /*gCriteria01Geometry = geometryEngine.buffer(
+                        arrGeometries,
+                        30,
+                        "miles"
+                    );*/
+
+                    // DEBUG
+                    displayMyPolygon(gCriteria01Geometry, "red");
+                });;
+            }
+
+            // Wait for the view and patient data layer to finish
+            // loading before calling each analysis function in turn
+            showLoadingSpinner();
+            view.then(featureLayer
+                .then(hideLoadingSpinner)
+            );
+
+
+            // Perform analysis on demand
+            on(dom.byId("runBtn"), "click", function () {
+                showLoadingSpinner()
+                resultsLayer.removeAll();
+                view.then(featureLayer
+                    .then(getOnlyOne)
+                    .then(hideLoadingSpinner)
+                );
+
+            });
+
+        });
+    </script>
+</head>
+<body>
+<div id="analysis-finding-suitable-locations" class="panel panel-primary panel-fixed">
+    <div class="panel-heading">
+        <h3 class="panel-title">Filter Criteria (not working yet)</h3>
+    </div>
+    <div class="panel-body">
+        <div id="widgetDiv">
+            <!--Buffer distance (miles):
+            <select id="bufferSelect">
+                <option value="2">2 </option>
+                <option value="4">4 </option>
+                <option value="6">6 </option>
+                <option value="8">8 </option>
+            </select>
+            <br><br>-->
+            Keyword:
+            <input id="keywordPhase" type="text" name="keywordphase" value="Hair Dresser">
+            <br><br>
+            <button id="runBtn">Run Analysis</button>
+            <br>
+        </div>
+    </div>
+</div>
+
+<div id="viewDiv"></div>
+<img id="loadingImg" src="loading.gif"
+     style="position:absolute; right:50%; top:50%; z-index:100; display:none;"/>
+</body>
+
+</html>

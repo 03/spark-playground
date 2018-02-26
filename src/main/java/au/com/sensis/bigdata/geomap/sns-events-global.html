@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <title>YP Events - Free vs Paid</title>
+
+    <style>
+        html,
+        body,
+        #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+
+    <link rel="stylesheet" href="https://jsdev.arcgis.com/4.6/esri/css/main.css">
+    <link rel="stylesheet" href="https://jsdev.arcgis.com/4.6/dijit/themes/soria/soria.css">
+    <script src="https://jsdev.arcgis.com/4.6/"></script>
+
+    <script>
+        require([
+            "esri/Map",
+            "esri/views/MapView",
+            "esri/layers/FeatureLayer",
+            "esri/layers/MapImageLayer",
+            "esri/renderers/UniqueValueRenderer",
+            "esri/renderers/ClassBreaksRenderer",
+            "esri/symbols/SimpleMarkerSymbol",
+            "esri/symbols/SimpleFillSymbol",
+            "esri/widgets/Legend",
+            "esri/PopupTemplate",
+            "esri/symbols/TextSymbol",
+            "esri/tasks/QueryTask",
+            "esri/tasks/support/Query",
+            "esri/geometry/geometryEngine",
+            "esri/layers/GraphicsLayer",
+            "esri/Graphic",
+            "dojo/on",
+            "dojo/dom",
+            "dojo/dom-style",
+            "dojo/domReady!"
+        ], function(Map, MapView, FeatureLayer, MapImageLayer,
+                    UniqueValueRenderer, ClassBreaksRenderer,
+                    SimpleMarkerSymbol, SimpleFillSymbol,
+                    Legend, PopupTemplate, TextSymbol, LabelClass,
+                    QueryTask, Query, geometryEngine, GraphicsLayer, Graphic,
+                    on, dom, domStyle) {
+
+            var map = new Map({
+                basemap: "streets"
+            });
+
+            // Construct feature layer from service URL
+            var featureLayer = new FeatureLayer({
+                url: "https://services8.arcgis.com/iVrk3P5ok3B9bZ1l/arcgis/rest/services/0102_1000_1010sample/FeatureServer/0?token=aLSwl2iYIr-6GpHKR4_SKZkgw3hLN9HskwK0q4cZEaizCh7AGPija-WhglcJSIQk1llIJM5-FLx_y1tXS5j_VhbeLUnDmrXB76kG78vW4Zngs6j0txxOD-B13ExKsYB7_TG6oZzplluGmcgcMScttCo8th2exPJUf8JSkemrrYkYmbaOwxxWq9DP2oG0MCUZANpH0BleGySfaOh9no5vCA.."
+
+            });
+
+            // Add feature layer to map
+            map.add(featureLayer);
+
+            // Discrete Data: Construct a UniqueValueRenderer
+            var uvRenderer = new UniqueValueRenderer({
+                field: "productCode_ref"
+            });
+
+            // Discrete Data: Specify unique values and their symbols
+            uvRenderer.addUniqueValueInfo({
+                value: "YPD00",
+                symbol: new SimpleMarkerSymbol({
+                    style: "square",
+                    color: [236,64,122,0.3]
+                })
+            });
+
+            uvRenderer.addUniqueValueInfo({
+                value: "YPD01",
+                symbol: new SimpleMarkerSymbol({
+                    style: "circle",
+                    color: [140, 235, 80, 0.25]
+                })
+            });
+
+            uvRenderer.addUniqueValueInfo({
+                value: "YPD02",
+                symbol: new SimpleMarkerSymbol({
+                    style: "circle",
+                    color: [140, 235, 80, 0.25]
+                })
+            });
+
+            uvRenderer.addUniqueValueInfo({
+                value: "YPD03",
+                symbol: new SimpleMarkerSymbol({
+                    style: "circle",
+                    color: [140, 235, 80, 0.25]
+                })
+            });
+
+            uvRenderer.addUniqueValueInfo({
+                value: "YPD04",
+                symbol: new SimpleMarkerSymbol({
+                    style: "circle",
+                    color: [140, 235, 80, 0.25]
+                })
+            });
+
+            featureLayer.renderer = uvRenderer;
+
+            var view = new MapView({
+                container: "viewDiv",
+                map: map,
+                zoom: 1
+            });
+
+            // Wait until the layer is loaded...
+            featureLayer.then(function() {
+                // ... then set the initial extent
+                view.extent = featureLayer.fullExtent;
+            });
+
+            // Legend widget
+            var myLegend = new Legend({
+                view: view,
+                layerInfos: [{
+                    layer: featureLayer,
+                    title: "Paid vs Free"
+                }]
+            });
+            view.ui.add(myLegend, "bottom-right");
+            view.then(function(){
+                // wait to start the widget until the view is ready
+                myLegend.startup();
+            });
+
+            // Popups
+            var eventPopupTemplate = new PopupTemplate({
+                title: "Event Summary for advertiser: {advertiserId_evt}",
+                content: "On 20180102 <br>" +
+                " Timestamp: <b>{eventDateTS_evt}</b> <br>" +
+                " Event Type: <b>{EventType_evt}</b> <br>" +
+                " Business Name: <b>{businessName_evt}</b> <br>" +
+                " Referred by: <b>{referrerUrl_evt}</b>",
+                fieldInfos: [{
+                    fieldName: "eventDateTS_evt",
+                    format: {
+                        dateFormat: "short-date",
+                        digitSeparator: false,
+                        places: 0
+                    }
+                }, {
+                    fieldName: "referrerUrl_evt",
+                }, {
+                    fieldName: "advertiserId_evt"
+                }]
+            });
+            //
+            // Apply the popup template to the sublayer
+            featureLayer.popupTemplate = eventPopupTemplate;
+            //
+            // Tell the view how to position the popup
+            view.popup.set("dockOptions",{
+                breakpoint: false,
+                position: "auto"
+            });
+
+            var postcodeLayer = new FeatureLayer({
+                url: "http://services.arcgis.com/oBaVBnYHObWYz9fQ/arcgis/rest/services/ABS_Postcode_Boundaries_2011/FeatureServer",
+            });
+
+            // Postcode Data: Add layer to the map at index 0
+            map.add(postcodeLayer, 0);
+            // map.addMany([postcodeLayer, featureLayer]);
+
+            // Popups
+            var postcodePopupTemplate = new PopupTemplate({
+                title: "<br>Post Code {POA_CODE}",
+                content: "In 2011, Area size: {SQKM} sqkm ",
+                fieldInfos: [{
+                    fieldName: "POA_CODE",
+                    format: {
+                        digitSeparator: true,
+                        places: 0
+                    }
+                }, {
+                    fieldName: "SQKM",
+                    format: {
+                        digitSeparator: true,
+                        places: 0
+                    }
+                }]
+            });
+            //
+            // Apply the popup template to the sublayer
+            postcodeLayer.popupTemplate = postcodePopupTemplate;
+            //
+            // Tell the view how to position the popup
+            view.popup.set("dockOptions",{
+                breakpoint: false,
+                position: "auto"
+            });
+
+            // Labels
+            postcodeLayer.labelsVisible = true;
+            postcodeLayer.labelingInfo = [{
+                labelExpression: "[POA_CODE]",
+                labelPlacement: "always-horizontal",
+                symbol: new TextSymbol({
+                    color: [255,255,255,1.0],
+                    font: {
+                        size: 12,
+                        weight: "bolder"
+                    }
+                })
+            }];
+
+        });
+    </script>
+</head>
+<body>
+<div id="viewDiv"></div>
+</body>
+
+</html>
